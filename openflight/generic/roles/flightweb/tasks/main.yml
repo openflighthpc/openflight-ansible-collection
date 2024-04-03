@@ -1,0 +1,47 @@
+- name: Start Flight WWW
+  command: "/opt/flight/bin/flight service restart www"
+
+- name: Can Successfully Generate Let's Encrypt certificate?
+  command: "/opt/flight/bin/flight www cert-gen --cert-type lets-encrypt --domain {{ access_host }} --email certs@openflighthpc.org"
+  register: letsencryptout
+  failed_when: "letsencryptout.rc > 0"
+  ignore_errors: true
+  when:
+    - "generate_certs | bool"
+
+- name: Generate Self-Signed certificate 
+  command: "/opt/flight/bin/flight www cert-gen --cert-type self-signed --domain {{ access_host }}"
+  when:
+    - "generate_certs | bool"
+    - "letsencryptout.rc != 0"
+
+- name: Configure web suite domain
+  command: "/opt/flight/bin/flight web-suite set-domain {{ access_host }}"
+
+- name: Configure landing page
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'environment.yaml', dest: '/opt/flight/opt/www/landing-page/default/content/data/environment.yaml' }
+
+- name: Compile landing page
+  command: "/opt/flight/bin/flight landing-page compile"
+
+- name: Start web suite
+  command: "/opt/flight/bin/flight web-suite restart"
+
+- name: Enable web suite
+  command: "/opt/flight/bin/flight web-suite enable"
+
+- name: Check for Flight Profile API
+  package_facts:
+    manager: auto
+
+- name: Start Flight Profile API
+  command: "/opt/flight/bin/flight service start profile-api"
+  when: '"flight-profile-api" in ansible_facts.packages'
+
+- name: Enable Flight Profile API
+  command: "/opt/flight/bin/flight service enable profile-api"
+  when: '"flight-profile-api" in ansible_facts.packages'

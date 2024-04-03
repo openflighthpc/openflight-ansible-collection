@@ -1,0 +1,110 @@
+- name: Identify hunter nodes
+  command: "sudo -i /opt/flight/bin/flight hunter list --plain"
+  register: hunter_list
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - never
+    - pre
+    - update
+
+- name: Process hunter nodes
+  set_fact:
+    hunter_nodes: "{{ hunter_nodes | default([]) +  [ {'label' : item.split('\t').4, 'ip' : item.split('\t').2, 'fqdn': item.split('\t').1, 'groups': item.split('\t').3} ] }}"
+  loop: "{{ hunter_list.stdout_lines }}"
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - never
+    - pre
+    - update
+
+- name: Add hunter nodes to /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} FLIGHT HUNTER HOSTS ENTRIES - DO NOT TOUCH"
+    block: |
+      {% for item in hunter_nodes %}
+      {{ item.ip }}    {{ item.fqdn }} {{ item.fqdn.split('.') |first }} {{ item.label }}
+      {% endfor %}
+  tags:
+    - never
+    - pre
+
+- name: Collect hunter mac addresses
+  shell: "{% for item in hunter_nodes %} sudo -i /opt/flight/bin/flight hunter show {{ item.label }} |grep '{{ item.ip }}' -B 2  |grep ':mac:' |sed 's/.*:mac: //g' ;{%endfor %}"
+  register: hunter_macs
+  delegate_to: localhost
+  run_once: true
+  when:
+    - mac_firewall
+  tags:
+    - never
+    - pre
+
+- name: Collect hunter IP addresses
+  shell: "sudo -i /opt/flight/bin/flight hunter list --plain  |awk '{print $3}'"
+  register: hunter_ips
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - never
+    - pre
+
+- name: Add hunter node mac addresses to firewall
+  firewalld:
+    zone: trusted
+    source: "{{ item }}"
+    state: enabled
+    permanent: yes
+  loop: "{{ hunter_macs.stdout_lines }}"
+  register: output
+  retries: 10
+  delay: 1
+  until: output is not failed
+  when:
+    - mac_firewall
+  tags:
+    - never
+    - pre
+
+- name: Add hunter node IP addresses to firewall
+  firewalld:
+    zone: trusted
+    source: "{{ item }}"
+    state: enabled
+    permanent: yes
+  loop: "{{ hunter_ips.stdout_lines }}"
+  register: ip_out
+  retries: 10
+  delay: 1
+  until: ip_out is not failed
+  tags:
+    - never
+    - pre
+
+- name: Reload firewall
+  systemd:
+    name: firewalld
+    state: reloaded
+  tags:
+    - never
+    - pre
+
+- name: Set hunter label in prompt 
+  blockinfile:
+    path: /etc/profile.d/01-hunter-prompt.sh
+    create: yes
+    marker: "# {mark} FLIGHT HUNTER PROMPT"
+    block: |
+      if [ "$PS1" ]; then
+      {% for item in hunter_nodes %}
+      {% if item.fqdn == inventory_hostname %}
+          PS1="[\u@\h\[\e[1;34m\] [{{ item.label }}]\[\e[0m\] \W]\\$ "
+      {% endif %}
+      {% endfor %}
+      fi
+  tags:
+    - never
+    - pre
+

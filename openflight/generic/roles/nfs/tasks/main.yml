@@ -1,0 +1,9 @@
+- name: NFS Server Configuration
+  import_tasks: server.yml
+  when: "inventory_hostname in nfs_shares |json_query('*.server') |unique or ansible_hostname in nfs_shares |json_query('*.server') |unique"
+
+- name: NFS Generic Configuration
+  include_tasks: generic.yml
+  tags:
+    - update
+    - remove
