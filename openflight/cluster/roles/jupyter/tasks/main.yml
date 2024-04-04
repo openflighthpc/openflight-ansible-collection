@@ -1,0 +1,50 @@
+- name: Generate Jupyter Configuration
+  become_user: "{{ default_username }}"
+  become: yes
+  become_method: su
+  become_flags: '--login'
+  command: "jupyter server --generate-config"
+  args:
+    creates: '/home/{{ default_username }}/.jupyter/jupyter_server_config.py'
+
+- name: Generate User Password Hash
+  command: python3.9 -c "from jupyter_server.auth import passwd ; print(passwd('{{ default_user_password }}'))"
+  register: password_hash
+
+- name: Set Jupyter Lab Password
+  lineinfile:
+    path: "/home/{{ default_username }}/.jupyter/jupyter_server_config.py"
+    state: present
+    regexp: '^c.ServerApp.password'
+    insertafter: '^# c.ServerApp.password'
+    line: "c.ServerApp.password = '{{ password_hash.stdout }}'"
+
+- name: Creat Jupyter Lab Service
+  template: 
+    src: jupyter-lab.service
+    dest: /etc/systemd/system/jupyter-lab.service
+
+- name: Start and Enable Jupyter Lab
+  service: name=jupyter-lab state=restarted enabled=yes
+
+- name: Add Flight WWW Config 
+  template:
+    src: jupyter-lab.conf
+    dest: /opt/flight/etc/www/server-https.d/jupyter-lab.conf
+
+- name: Disable Unused Web-Suite Applications
+  command: mv /opt/flight/opt/www/landing-page/default/content/apps/job-script.md /opt/flight/opt/www/landing-page/default/content/apps/job-script.md.disabled
+  args:
+    creates: /opt/flight/opt/www/landing-page/default/content/apps/job-script.md.disabled
+    removes: /opt/flight/opt/www/landing-page/default/content/apps/job-script.md
+
+- name: Install Jupyter Web-Suite Application
+  template:
+    src: templates/jupyter-lab.md
+    dest: /opt/flight/opt/www/landing-page/default/content/apps/jupyter-lab.md
+
+- name: Install Jupyter Web-Suite Logo
+  copy:
+    src: files/jupyter-lab.png
+    dest: /opt/flight/opt/www/landing-page/default/content/images/jupyter.png
+

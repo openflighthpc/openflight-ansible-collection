@@ -1,0 +1,19 @@
+- name: Create spool directory
+  file:
+    path: /opt/flight/opt/slurm/var/spool/slurm.state
+    state: directory
+    owner: nobody
+    group: nobody
+
+- name: Turn on SLURM controller daemon
+  service: name=flight-slurmctld state=restarted enabled=yes
+  tags:
+    - update
+    - remove
+
+- name: Reload SLURM configuration
+  shell: "/opt/flight/opt/slurm/bin/scontrol reconfigure"
+  tags:
+    - never
+    - update
+    - remove

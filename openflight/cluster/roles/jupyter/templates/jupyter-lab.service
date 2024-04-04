@@ -1,0 +1,14 @@
+[Unit]
+Description="Jupyter Lab service"
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env jupyter lab --ip 127.0.0.1 --port=8989 --no-browser --ServerApp.allow_remote_access='True' --ServerApp.base_url=jupyter --port-retries=0
+WorkingDirectory=/home/{{ default_username }}
+User={{ default_username }}
+Group={{ default_username }}
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
