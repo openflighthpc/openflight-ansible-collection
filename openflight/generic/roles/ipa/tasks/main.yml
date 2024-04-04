@@ -1,0 +1,12 @@
+- name: Perform Server Configuration
+  import_tasks: ipaserver.yml
+  when: "'ipa' in group_names"
+
+- name: Perform Client Configuration
+  include_tasks: ipaclient.yml
+  when: 
+    - "'ipa' not in group_names"
+    - hunter_hosts |bool
+  tags:
+    - update
+    - remove
