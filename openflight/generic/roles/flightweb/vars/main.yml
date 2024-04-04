@@ -1,3 +1,6 @@
+## The name of the cluster
+cluster_name: mycluster
+
 ## The hostname or IP address for accessing Web Suite and VNC sessions on
 access_host: ""
 
