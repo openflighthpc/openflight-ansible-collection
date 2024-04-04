@@ -1,6 +1,6 @@
 # Overview
 
-An ansible [collection]() providing generic HPC roles utilised by OpenFlight ansible playbooks. 
+An ansible [collection](https://docs.ansible.com/ansible/latest/collections_guide/collections_using_playbooks.html#using-collections-in-playbooks) providing generic HPC roles utilised by OpenFlight ansible playbooks. 
 
 ## Install
 
