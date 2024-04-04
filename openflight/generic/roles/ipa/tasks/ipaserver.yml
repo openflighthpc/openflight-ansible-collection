@@ -102,3 +102,60 @@
       - sshd 
     ipa_pass: "{{ secure_admin_password }}" 
     ipa_host: "{{ ipa_server }}.{{ ipa_domain }}"
+
+- name: IPA Ready for Client Additions?
+  shell: "ipactl status"
+  ignore_errors: true
+  register: ipastatus
+  when: hunter_hosts |bool
+  tags:
+    - never
+    - pre
+    - update
+
+- name: Add Hunter Hosts to IPA
+  ipa_host:
+    name: "{{ item.fqdn }}"
+    ip_address: "{{ item.ip }}"
+    ipa_host: "{{ ipa_server }}.{{ ipa_domain }}"
+    ipa_user: admin
+    ipa_pass: "{{ secure_admin_password }}"
+    state: present
+  register: ipahostadd
+  loop: "{{ hunter_nodes }}"
+  when:
+    - "ipastatus.rc == 0"
+    - "item.fqdn != (ipa_server + '.' + ipa_domain)"
+    - hunter_hosts |bool
+  tags:
+    - never
+    - pre
+    - update
+
+- name: Prepare Hunter Nodes List for Hostgroup Addition
+  set_fact:
+    hunter_fqdns: "{{ hunter_fqdns | default([]) + [item.fqdn] }}"
+  loop: "{{ hunter_nodes }}"
+  delegate_to: localhost
+  when:
+    - "item.fqdn != (ipa_server + '.' + ipa_domain)"
+    - "ipastatus.rc == 0"
+    - hunter_hosts |bool
+  tags:
+    - never
+    - pre
+    - update
+
+- name: Add Hunter Hosts to Generic Hostgroup
+  ipa_hostgroup:
+    name: cluster
+    host: "{{ hunter_fqdns }}"
+    append: true
+    ipa_pass: "{{ secure_admin_password }}"
+  when:
+    - "ipastatus.rc == 0"
+    - hunter_hosts |bool
+  tags:
+    - never
+    - pre
+    - update
