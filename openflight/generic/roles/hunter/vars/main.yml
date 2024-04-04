@@ -10,14 +10,3 @@ mac_firewall: false
 remove_node:
   - "HOSTNAME_OF_NODE_TO_BE_REMOVED"
   - "HOSTNAME_OF_NODE_TO_BE_REMOVED2"
-
-# IPA Settings
-## If false then do not proceed to add hunter nodes to server or join clients to IPA
-ipa_use: false
-## The short hostname of the IPA server
-ipa_server: "{{ hostvars[groups['ipa'][0]]['ansible_facts']['hostname'] if groups['ipa'][0] is defined else 'infra01' }}"
-## The domain of the IPA server
-ipa_domain: "cluster.example.com"
-## Password for the 'admin' IPA user
-secure_admin_password: MySecurePassword
-

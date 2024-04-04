@@ -159,3 +159,20 @@
     - never
     - pre
     - update
+
+- name: Remove from IPA
+  ipa_host:
+    name: "{{ item.fqdn }}"
+    ip_address: "{{ item.ip }}"
+    ipa_host: "{{ ipa_server }}.{{ ipa_domain }}"
+    ipa_user: admin
+    ipa_pass: "{{ secure_admin_password }}"
+    update_dns: true
+    state: absent
+  loop: "{{ hunter_node_remove }}"
+  when:
+    - "item.fqdn != (ipa_server + '.' + ipa_domain)"
+    - hunter_hosts |bool
+  tags:
+    - never
+    - remove
