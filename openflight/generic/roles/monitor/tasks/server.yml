@@ -7,14 +7,14 @@
     path: "{{ item }}"
     state: directory
   loop:
-    - /etc/grafana/provisioning/data_sources/
+    - /etc/grafana/provisioning/datasources/
     - /etc/grafana/provisioning/dashboards/
     - /var/lib/grafana/dashboards/
   
 - name: Configure Prometheus data source
   copy:
     src: files/prometheus.yaml
-    dest: /etc/grafana/provisioning/data_sources/prometheus.yaml
+    dest: /etc/grafana/provisioning/datasources/prometheus.yaml
 
 - name: Create default dashboard configuration
   copy: 
@@ -55,3 +55,8 @@
 
 - name: Turn on Grafana Server
   service: name=grafana-server state=restarted enabled=yes
+
+- name: Add Grafana WWW Config
+- name: Install Grafana Web-Suite Application 
+
+- name: Install Grafana Web-Suite Logo
