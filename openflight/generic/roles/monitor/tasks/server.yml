@@ -35,6 +35,7 @@
   when: 
     - hunter_hosts |bool
   tags:
+    - never
     - update
     - remove
 
