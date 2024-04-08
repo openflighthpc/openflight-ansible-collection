@@ -65,6 +65,16 @@
   service: name=grafana-server state=restarted enabled=yes
 
 - name: Add Grafana WWW Config
+  copy:
+    src: files/grafana.conf
+    dest: /opt/flight/etc/www/server-https.d/grafana.conf
+
 - name: Install Grafana Web-Suite Application 
+  copy:
+    src: files/grafana.md
+    dest: /opt/flight/opt/www/landing-page/default/content/apps/grafana.md
 
 - name: Install Grafana Web-Suite Logo
+  copy: 
+    src: files/grafana.png
+    dest: /opt/flight/opt/www/landing-page/default/content/images/grafana.png
