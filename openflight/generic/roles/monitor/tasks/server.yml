@@ -1,6 +1,15 @@
 - name: Set Grafana admin access password to provided
   command: "grafana-cli admin reset-admin-password {{ default_user_password }}" 
 
+- name: Configure Grafana server
+  lineinfile:
+    path: /etc/grafana/grafana.ini
+    state: present
+    line: "{{ item }}"
+  loop:
+    - 'root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana'
+    - 'serve_from_sub_path = true'
+
 - name: Create Grafana directories 
   file:
     path: "{{ item }}"
