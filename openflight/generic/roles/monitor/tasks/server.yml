@@ -1,0 +1,47 @@
+- name: Set Grafana access details
+  debug:
+    msg: "Do something to set username to default_username and password to default_password" 
+
+- name: Configure Prometheus data source
+  copy:
+    src: files/prometheus.yaml
+    dest: /etc/grafana/provisioning/data_sources/prometheus.yaml
+
+- name: Create default dashboard configuration
+  copy: 
+    src: files/node-exporter-full.yaml
+    dest: /etc/grafana/provisioning/dashboards/node-exporter-full.yaml
+    mode: '744'
+
+- name: Create default dashboard definition
+  copy: 
+    src: files/node-exporter-full.json
+    dest: /var/lib/grafana/dashboards/node-exporter-full.json
+    mode: '744'
+
+- name: Add Hunter nodes to Prometheus monitoring
+  template:
+    src: templates/prometheus-hunter.yml
+    dest: /opt/flight/opt/prometheus/prometheus.yml
+  when: 
+    - hunter_hosts |bool
+  tags:
+    - update
+    - remove
+
+- name: Allow Prometheus data from nodes in network
+  firewalld:
+    zone: public 
+    port: '9090/tcp'
+    state: enabled
+    permanent: yes
+    immediate: true
+
+- name: Turn on Prometheus Server
+  service: name=prometheus state=restarted enabled=yes
+  tags:
+    - update
+    - remove
+
+- name: Turn on Grafana Server
+  service: name=grafana-server state=restarted enabled=yes
