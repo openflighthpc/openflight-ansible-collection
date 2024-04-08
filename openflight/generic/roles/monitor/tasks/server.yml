@@ -1,6 +1,5 @@
-- name: Set Grafana access details
-  debug:
-    msg: "Do something to set username to default_username and password to default_password" 
+- name: Set Grafana admin access password to provided
+  command: "grafana-cli admin reset-admin-password {{ default_user_password }}" 
 
 - name: Create Grafana directories 
   file:
