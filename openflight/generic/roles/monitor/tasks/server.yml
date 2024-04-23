@@ -3,14 +3,17 @@
   become_user: grafana
   command: "grafana-cli admin reset-admin-password {{ default_user_password }}" 
 
-- name: Configure Grafana server
+- name: Configure Grafana server root path (1/2)
   lineinfile:
     path: /etc/grafana/grafana.ini
-    state: present
-    line: "{{ item }}"
-  loop:
-    - 'root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana'
-    - 'serve_from_sub_path = true'
+    regexp: '^(.*)root_url =(.*)$'
+    line: 'root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana'
+
+- name: Configure Grafana server root path (2/2)
+  lineinfile:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(.*)serve_from_sub_path =(.*)$'
+    line: 'serve_from_sub_path = true'
 
 - name: Create Grafana directories 
   file:
