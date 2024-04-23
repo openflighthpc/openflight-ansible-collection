@@ -14,6 +14,8 @@
   file:
     path: "{{ item }}"
     state: directory
+    owner: grafana
+    group: grafana
   loop:
     - /etc/grafana/provisioning/datasources/
     - /etc/grafana/provisioning/dashboards/
@@ -23,18 +25,24 @@
   copy:
     src: files/prometheus.yaml
     dest: /etc/grafana/provisioning/datasources/prometheus.yaml
+    owner: grafana
+    group: grafana
 
 - name: Create default dashboard configuration
   copy: 
     src: files/node-exporter-full.yaml
     dest: /etc/grafana/provisioning/dashboards/node-exporter-full.yaml
     mode: '744'
+    owner: grafana
+    group: grafana
 
 - name: Create default dashboard definition
   copy: 
     src: files/node-exporter-full.json
     dest: /var/lib/grafana/dashboards/node-exporter-full.json
     mode: '744'
+    owner: grafana
+    group: grafana
 
 - name: Add Hunter nodes to Prometheus monitoring
   template:
