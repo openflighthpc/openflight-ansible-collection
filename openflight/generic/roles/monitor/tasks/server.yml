@@ -1,4 +1,6 @@
 - name: Set Grafana admin access password to provided
+  become: yes
+  become_user: grafana
   command: "grafana-cli admin reset-admin-password {{ default_user_password }}" 
 
 - name: Configure Grafana server
