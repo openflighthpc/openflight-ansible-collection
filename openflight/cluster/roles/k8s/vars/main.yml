@@ -1,0 +1,16 @@
+# General
+cluster_name: mycluster
+
+# IP range for Kubernetes Pods
+pod_ip_range: "192.168.0.0/16"
+
+# IP range for Kubernetes Nodes & NFS Shares
+compute_ip_range: "10.10.0.0/16"
+
+# Shared User
+default_username: flight
+
+# Node to remove
+remove_node:
+  - "HOSTNAME_OF_NODE_TO_BE_REMOVED"
+  - "HOSTNAME_OF_NODE_TO_BE_REMOVED2"

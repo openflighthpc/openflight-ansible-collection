@@ -1,0 +1,16 @@
+- name: Perform Generic Configuration
+  import_tasks: generic.yml
+
+- name: Perform Master Configuration
+  import_tasks: master.yml
+  when: "'master' in group_names"
+
+- name: Perform Worker Configuration
+  import_tasks: worker.yml
+  when: "'worker' in group_names"
+
+- name: Perform Removal Tasks
+  import_tasks: remove.yml
+  tags: 
+    - never
+    - remove

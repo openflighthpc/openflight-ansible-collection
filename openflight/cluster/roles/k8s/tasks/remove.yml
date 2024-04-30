@@ -1,0 +1,10 @@
+- name: Delete Node
+  shell: "kubectl delete node {{ item }} --wait=true --ignore-not-found=true"
+  become: yes
+  become_user: "{{ default_username }}"
+  loop: remove_node
+  when: "'master' in group_names"
+
+- name: Reset Node
+  shell: "kubeadm reset -f"
+  when: ansible_fqdn in remove_node
