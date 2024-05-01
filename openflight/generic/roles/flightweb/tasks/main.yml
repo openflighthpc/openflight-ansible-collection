@@ -25,6 +25,10 @@
   loop:
     - { src: 'environment.yaml', dest: '/opt/flight/opt/www/landing-page/default/content/data/environment.yaml' }
 
+- name: Enable Rack View
+  import_tasks: rack-view.yml
+  when: rack_view |bool
+
 - name: Compile landing page
   command: "/opt/flight/bin/flight landing-page compile"
 

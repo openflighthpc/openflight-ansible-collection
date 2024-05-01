@@ -1,0 +1,14 @@
+- name: Put Rack View Files in Place
+  unarchive:
+    src: files/rack-view.tar.gz
+    dest: /opt/flight/opt/www/landing-page/default/content/
+
+- name: Add Rack View Application to Web-Suite 
+  copy:
+    src: files/rack-view.md
+    dest: /opt/flight/opt/www/landing-page/default/content/apps/rack-view.md
+
+- name: Install Rack View Logo
+  copy:
+    src: files/rack-view.png
+    dest: /opt/flight/opt/www/landing-page/default/content/images/rack.png

@@ -8,3 +8,6 @@ access_host: ""
 ## and fall back to a self-signed one if the Let's Encrypt service cannot reach
 ## the provided access_host address
 generate_certs: true
+
+## If true this will setup the "Rack view" app
+rack_view: false
