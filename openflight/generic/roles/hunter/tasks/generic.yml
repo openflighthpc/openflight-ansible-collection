@@ -4,7 +4,6 @@
   delegate_to: localhost
   run_once: true
   tags:
-    - never
     - pre
     - update
 
@@ -15,7 +14,6 @@
   delegate_to: localhost
   run_once: true
   tags:
-    - never
     - pre
     - update
 
@@ -23,7 +21,6 @@
   set_fact: 
     node_hunter_label: "{{ (hunter_nodes |selectattr('fqdn','==',inventory_hostname))[0].label }}"
   tags:
-    - never
     - pre
     - update
 
