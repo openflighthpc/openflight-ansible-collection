@@ -6,7 +6,7 @@
 {% for item in groups['all'] %}
 {% if "login" in hostvars[item]['group_names'] or "master" in hostvars[item]['group_names'] %}
 {% set type = "login" %}
-{% elif inventory_hostname in nfs_servers or ansible_hostname in nfs_servers or node_hunter_label |default('UNDEFINED') in nfs_servers %}
+{% elif hostvars[item]['inventory_hostname'] in nfs_servers or hostvars[item]['ansible_hostname'] in nfs_servers or hostvars[item]['node_hunter_label'] |default('UNDEFINED') in nfs_servers  %}
 {% set type = "storage" %}
 {% else %}
 {% set type = "compute" %}
