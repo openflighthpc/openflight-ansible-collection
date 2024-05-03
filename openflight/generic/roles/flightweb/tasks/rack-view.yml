@@ -15,7 +15,7 @@
 
 - name: Generate Resource List for Rack View
   template:
-    src: template/dc-resources.json
+    src: templates/dc-resources.json
     dest: /opt/flight/opt/www/landing-page/default/content/rack-view/dc-resources.json
   tags:
     - never
