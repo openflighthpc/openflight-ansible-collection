@@ -1,0 +1,23 @@
+{
+  "clusters": [
+    {
+      "id":"{{ cluster_name }}",
+      "nodes": [
+{% for item in groups['all'] %}
+{% if "login" in hostvars[item]['group_names'] or "master" in hostvars[item]['group_names'] %}
+{% set type = "login" %}
+{% elif inventory_hostname in nfs_servers or ansible_hostname in nfs_servers or node_hunter_label |default('UNDEFINED') in nfs_servers %}
+{% set type = "storage" %}
+{% else %}
+{% set type = "compute" %}
+{% endif %}
+        {
+          "type": "{{ type }}",
+          "status": "running"
+        }{%if loop.index != loop.length %},{%endif%}
+{% endfor %}
+
+      ]
+    }
+  ]
+}

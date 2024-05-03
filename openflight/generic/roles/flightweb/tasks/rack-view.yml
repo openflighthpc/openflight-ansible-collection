@@ -12,3 +12,11 @@
   copy:
     src: files/rack-view.png
     dest: /opt/flight/opt/www/landing-page/default/content/images/rack.png
+
+- name: Generate Resource List for Rack View
+  template:
+    src: template/dc-resources.json
+    dest: /opt/flight/opt/www/landing-page/default/content/rack-view/dc-resources.json
+  tags:
+    - never
+    - update 
