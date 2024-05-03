@@ -20,3 +20,9 @@
   tags:
     - never
     - update 
+
+- name: Compile landing page
+  command: "/opt/flight/bin/flight landing-page compile"
+  tags:
+    - never
+    - update
