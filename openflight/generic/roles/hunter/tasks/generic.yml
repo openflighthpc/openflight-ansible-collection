@@ -19,6 +19,14 @@
     - pre
     - update
 
+- name: Identify node hunter label 
+  set_fact: 
+    node_hunter_label: "{{ (hunter_nodes |selectattr('fqdn','==',inventory_hostname))[0].label }}"
+  tags:
+    - never
+    - pre
+    - update
+
 - name: Add hunter nodes to /etc/hosts
   blockinfile:
     path: /etc/hosts
@@ -98,11 +106,7 @@
     marker: "# {mark} FLIGHT HUNTER PROMPT"
     block: |
       if [ "$PS1" ]; then
-      {% for item in hunter_nodes %}
-      {% if item.fqdn == inventory_hostname %}
-          PS1="[\u@\h\[\e[1;34m\] [{{ item.label }}]\[\e[0m\] \W]\\$ "
-      {% endif %}
-      {% endfor %}
+          PS1="[\u@\h\[\e[1;34m\] [{{ node_hunter_label }}]\[\e[0m\] \W]\\$ "
       fi
   tags:
     - never

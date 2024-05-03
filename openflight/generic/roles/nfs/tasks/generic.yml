@@ -12,9 +12,9 @@
     marker: "# {mark} FLIGHT REMOTE NFS ENTRIES - DO NOT TOUCH"
     block: |
       {% for item in nfs_shares|dict2items %}
-      {% if groups.all is search(item.value.server) %}
-      {% if inventory_hostname != item.value.server and ansible_hostname != item.value.server %}
-      {% if not remove_node is search(item.value.server) %}
+      {% if groups.all is search(item.value.server) or groups.all is search((hunter_nodes |json_query('[?label==`' + item.value.server + '`].fqdn'))[0] |default('UNDEFINED')) %}
+      {% if inventory_hostname != item.value.server and ansible_hostname != item.value.server and node_hunter_label |default('UNDEFINED') != item.value.server %}
+      {% if not (remove_node is search(item.value.server) or remove_node is search((hunter_nodes |json_query('[?label==`' + item.value.server + '`].fqdn'))[0] |default(['UNDEFINED']))) %}
       {{ item.value.server }}:{{ item.value.export }}    {{ item.value.mountpoint }}    nfs    {{ item.value.mount_opts }}    0 0
       {% endif %}
       {% endif %}
@@ -28,7 +28,7 @@
 - name: Unmount Removed NFS Mounts
   command: "umount {{ item.value.mountpoint }}"
   with_dict: "{{ nfs_shares }}"
-  when: "remove_node is search(item.value.server) and inventory_hostname != item.value.server and ansible_hostname != item.value.server"
+  when: "(remove_node is search(item.value.server) or remove_node is search((hunter_nodes |json_query('[?label==`' + item.value.server + '`].fqdn'))[0] |default('UNDEFINED'))) and inventory_hostname != item.value.server and ansible_hostname != item.value.server"
   tags:
     - never
     - remove
