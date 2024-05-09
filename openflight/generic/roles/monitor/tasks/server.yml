@@ -1,21 +1,21 @@
-- name: Set Grafana admin access password to provided
+- name: Set admin access password to provided password
   become: yes
   become_user: grafana
   command: "grafana-cli admin reset-admin-password {{ default_user_password }}" 
 
-- name: Configure Grafana server root path (1/2)
+- name: Configure server root path (1/2)
   lineinfile:
     path: /etc/grafana/grafana.ini
     regexp: '^(.*)root_url =(.*)$'
     line: 'root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana'
 
-- name: Configure Grafana server root path (2/2)
+- name: Configure server root path (2/2)
   lineinfile:
     path: /etc/grafana/grafana.ini
     regexp: '^(.*)serve_from_sub_path =(.*)$'
     line: 'serve_from_sub_path = true'
 
-- name: Create Grafana directories 
+- name: Create required directories 
   file:
     path: "{{ item }}"
     state: directory
@@ -26,7 +26,7 @@
     - /etc/grafana/provisioning/dashboards/
     - /var/lib/grafana/dashboards/
   
-- name: Configure Prometheus data source
+- name: Configure data source
   copy:
     src: files/prometheus.yaml
     dest: /etc/grafana/provisioning/datasources/prometheus.yaml
@@ -49,7 +49,7 @@
     owner: grafana
     group: grafana
 
-- name: Add Hunter nodes to Prometheus monitoring
+- name: Add Hunter nodes to monitoring
   template:
     src: templates/prometheus-hunter.yml
     dest: /opt/flight/opt/prometheus/prometheus.yml
@@ -60,7 +60,7 @@
     - update
     - remove
 
-- name: Allow Prometheus data from nodes in network
+- name: Allow data from nodes in network through firewall
   firewalld:
     zone: public 
     port: '9090/tcp'
@@ -68,26 +68,26 @@
     permanent: yes
     immediate: true
 
-- name: Turn on Prometheus Server
+- name: Turn on data server
   service: name=prometheus state=restarted enabled=yes
   tags:
     - update
     - remove
 
-- name: Turn on Grafana Server
+- name: Turn on monitoring server
   service: name=grafana-server state=restarted enabled=yes
 
-- name: Add Grafana WWW Config
+- name: Add Monitor WWW Config
   copy:
-    src: files/grafana.conf
-    dest: /opt/flight/etc/www/server-https.d/grafana.conf
+    src: files/flight-monitor.conf
+    dest: /opt/flight/etc/www/server-https.d/monitor.conf
 
-- name: Install Grafana Web-Suite Application 
+- name: Install Monitor Web-Suite Application 
   copy:
-    src: files/grafana.md
-    dest: /opt/flight/opt/www/landing-page/default/content/apps/grafana.md
+    src: files/flight-monitor.md
+    dest: /opt/flight/opt/www/landing-page/default/content/apps/monitor.md
 
-- name: Install Grafana Web-Suite Logo
+- name: Install Monitor Web-Suite Logo
   copy: 
-    src: files/grafana.png
-    dest: /opt/flight/opt/www/landing-page/default/content/images/grafana.png
+    src: files/flight-monitor.png
+    dest: /opt/flight/opt/www/landing-page/default/content/images/monitor.png
