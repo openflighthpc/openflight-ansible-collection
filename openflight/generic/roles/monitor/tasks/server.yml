@@ -7,7 +7,7 @@
   lineinfile:
     path: /etc/grafana/grafana.ini
     regexp: '^(.*)root_url =(.*)$'
-    line: 'root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana'
+    line: 'root_url = %(protocol)s://%(domain)s:%(http_port)s/monitor'
 
 - name: Configure server root path (2/2)
   lineinfile:
