@@ -26,4 +26,4 @@ scrape_configs:
     # scheme defaults to 'http'.
 
     static_configs:
-      - targets: [{% for item in hunter_nodes %}"{{ item.label }}:9100",{% endfor %}]
+      - targets: [{% for item in hunter_nodes %}{% if not item.fqdn in remove_node %} "{{ item.label }}:9100",{% endif %}{% endfor %}]
