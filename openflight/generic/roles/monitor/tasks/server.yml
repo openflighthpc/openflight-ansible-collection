@@ -49,6 +49,12 @@
     owner: grafana
     group: grafana
 
+- name: Set default dashboard as landing page
+  lineinfile:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(.*)default_home_dashboard_path =(.*)$'
+    line: 'default_home_dashboard_path = /var/lib/grafana/dashboards/node-exporter-full.json'
+
 - name: Add Hunter nodes to monitoring
   template:
     src: templates/prometheus-hunter.yml
